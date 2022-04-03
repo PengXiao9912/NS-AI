@@ -11,6 +11,11 @@ def mean_squared_error(prediction, exact):
     return tf.reduce_mean(tf.square(prediction - exact))
 
 
+def relative_error(prediction, exact):
+    if type(prediction) is np.ndarray:
+        return np.sqrt(np.mean(np.square(prediction - exact)) / np.mean(np.square(exact - np.mean(exact))))
+    return tf.sqrt(tf.reduce_mean(tf.square(prediction - exact)) / tf.reduce_mean(tf.square(exact - tf.reduce_mean(exact))))
+
 class Cnn_net(object):
     def __init__(self, *inputs, layers):
         self.layers = layers
