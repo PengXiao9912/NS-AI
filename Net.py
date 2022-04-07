@@ -80,11 +80,42 @@ def Navier_Stoeks_3D(u, v, w, p, t, x, y, z, Rey):
     error3 =
     error4 =
 
-    class Cnn_net(object):
-        def __init__(self, *inputs, layers):
-            self.layers = layers
-            self.num_layers = len(self.layers)
-            if len(inputs) == 0:
-                in_dim = self.layers[0]
-                self.X_mean = np.zeros([1, in_dim])
-                self.X_std = np.ones([1, in_dim])
+
+class Cnn_net(object):
+    def __init__(self, *inputs, layers):
+        self.layers = layers
+        self.num_layers = len(self.layers)
+        if len(inputs) == 0:
+            in_dim = self.layers[0]
+            self.X_mean = np.zeros([1, in_dim])
+            self.X_std = np.ones([1, in_dim])
+        else:
+            X = np.concatenate(inputs, 1)  # 列扩充
+            self.X_mean = X.mean(0, keepdims=True)  # 计算每个数据集的平均值
+            self.X_std = X.std(0, keepdims=True)  # 计算每个数据集的标准差
+        self.weights = []
+        self.biases = []
+        self.alpha = []
+        for L in range(0, self.num_layers - 1):
+            in_dim = self.layers[1]
+            out_dim = self.layers[L + 1]
+            w = np.random.normal(size=[in_dim, out_dim])
+            b = np.zeros([1, out_dim])
+            a = np.ones([1, out_dim])
+            self.weights.append(tf.Variable(w, dtype=tf.float32, trainable=True))
+            self.biases.append(tf.Variable(b, dtype=tf.float32, trainable=True))
+            self.alpha.append(tf.Variable(a, dtype=tf.float32, trainable=True))
+
+    def __call__(self, *inputs):
+        Differ = (tf.contact(inputs, 1) - self.X_mean) / self.X_std
+        for L in range(0, self.num_layers - 1):
+            w = self.weights[L]
+            b = self.biases[L]
+            a = self.alpha[L]
+            W = w / tf.norm(w, axis=0, keepdims=True)
+            Differ = tf.matmul(Differ, W)
+            Differ = a * Differ + b
+            if L < self.num_layers - 2:
+                Differ = Differ * tf.sigmoid(Differ)
+        Final = tf.split(Differ, num_or_size_splits=Differ.shape[1], axis=1)
+        return Final
