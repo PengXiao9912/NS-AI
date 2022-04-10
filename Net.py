@@ -81,6 +81,25 @@ def Navier_Stoeks_3D(u, v, w, p, t, x, y, z, Rey):
     error4 =
 
 
+def Gradient_Velocity_NS_3D(u, v, w, x, y, z):
+    Total = tf.concat([u, v, w], 1)
+    Total_x = forward_gradients(Total, x)
+    Total_y = forward_gradients(Total, y)
+    Total_z = forward_gradients(Total, z)
+    u_x = Total_x[:, 0:1]
+    v_x = Total_x[:, 1:2]
+    w_x = Total_x[:, 2:3]
+
+    u_y = Total_y[:, 0:1]
+    v_y = Total_y[:, 1:2]
+    w_y = Total_y[:, 2:3]
+
+    u_z = Total_z[:, 0:1]
+    v_z = Total_z[:, 1:2]
+    w_z = Total_z[:, 2:3]
+    return [u_x, u_y, u_z, v_x, v_y, v_z, w_x, w_y, w_z]
+
+
 class Cnn_net(object):
     def __init__(self, *inputs, layers):
         self.layers = layers
