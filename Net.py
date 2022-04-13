@@ -20,11 +20,15 @@ def relative_error(prediction, exact):
         return np.sqrt(np.mean(np.square(prediction - exact)) / np.mean(np.square(exact - np.mean(exact))))
     return torch.sqrt(
         torch.mean(torch.square(prediction - exact)) / torch.mean(torch.square(exact - torch.mean(exact))))
-    # torch.sqrt导函数定义域(0,无穷大)
+    # torch.sqrt导函数定义域(0,无穷大
 
 
-# 前馈梯度传递
+# sdasd @
+
+
+# 前馈梯度传递-未改
 def forward_gradients(y, x):
+    x.requires_gradients = True
     dummy = torch.ones_like(y)  # 每个x的权重均为1
     g = tf.gradients(y, x, grad_ys=dummy, colocate_gradients_with_ops=True)[0]
     y_x = tf.gradients(g, dummy, colocate_gradients_with_ops=True)[0]
@@ -83,7 +87,8 @@ def Navier_Stoeks_3D(u, v, w, p, t, x, y, z, Rey):
     error3 =
     error4 =
 
-<<<<<<< HEAD
+<< << << < HEAD
+
 
 def Gradient_Velocity_NS_3D(u, v, w, x, y, z):
     Total = torch.cat([u, v, w], 1)
@@ -142,13 +147,20 @@ class Pinn_net(object):
                 Differ = Differ * tf.sigmoid(Differ)
         Final = tf.split(Differ, num_or_size_splits=Differ.shape[1], axis=1)
         return Final
-=======
-    class Cnn_net(object):
-        def __init__(self, *inputs, layers):
-            self.layers = layers
-            self.num_layers = len(self.layers)
-            if len(inputs) == 0:
-                in_dim = self.layers[0]
-                self.X_mean = np.zeros([1, in_dim])
-                self.X_std = np.ones([1, in_dim])
->>>>>>> parent of 4236d86 (Fourth Commit)
+
+== == == =
+
+class Cnn_net(object):
+    def __init__(self, *inputs, layers):
+        self.layers = layers
+        self.num_layers = len(self.layers)
+        if len(inputs) == 0:
+            in_dim = self.layers[0]
+            self.X_mean = np.zeros([1, in_dim])
+            self.X_std = np.ones([1, in_dim])
+
+>> >> >> > parent
+of
+4236
+d86(Fourth
+Commit)

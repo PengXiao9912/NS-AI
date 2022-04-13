@@ -3,7 +3,6 @@ import torch
 
 @torch.enable_grad()
 def fwd_backward(y, x):
-    x.requires_grad = True
     dummy = torch.ones_like(y)
     dummy.requires_grad = True
     torch.sum(y).backward()
@@ -15,12 +14,10 @@ def fwd_backward(y, x):
 
 if __name__ == '__main__':
     a = torch.tensor([[2., 2.], [2., 2.]])
-    # b = torch.full((2, 2), 3, dtype=torch.float)
+    b = torch.full((2, 2), 3, dtype=torch.float)
     a.requires_grad = True
-    # b.requires_grad = True
-    # c = a * b
-    c = torch.tensor([[6., 6.], [6., 6.]])
-    c.requires_grad = True
+    b.requires_grad = True
+    c = a * b
     print(c)
     grad = fwd_backward(c, a)
     print(grad)
