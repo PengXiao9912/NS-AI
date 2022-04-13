@@ -3,33 +3,36 @@
 """
 
 import numpy as np
+from torch.autograd import Variable
+import torch
 
 
 # 均方误差 范数
 def mean_squared_error(prediction, exact):
     if type(prediction) is np.ndarray:
         return np.mean(np.square(prediction - exact))
-    return tf.reduce_mean(tf.square(prediction - exact))
+    return torch.mean(torch.square(prediction - exact))
 
 
 # 相对误差
 def relative_error(prediction, exact):
     if type(prediction) is np.ndarray:
         return np.sqrt(np.mean(np.square(prediction - exact)) / np.mean(np.square(exact - np.mean(exact))))
-    return tf.sqrt(
-        tf.reduce_mean(tf.square(prediction - exact)) / tf.reduce_mean(tf.square(exact - tf.reduce_mean(exact))))
+    return torch.sqrt(
+        torch.mean(torch.square(prediction - exact)) / torch.mean(torch.square(exact - torch.mean(exact))))
+    # torch.sqrt导函数定义域(0,无穷大)
 
 
 # 前馈梯度传递
 def forward_gradients(y, x):
-    dummy = tf.ones_like(y)  # 每个x的权重均为1
+    dummy = torch.ones_like(y)  # 每个x的权重均为1
     g = tf.gradients(y, x, grad_ys=dummy, colocate_gradients_with_ops=True)[0]
     y_x = tf.gradients(g, dummy, colocate_gradients_with_ops=True)[0]
     return y_x
 
 
 def Navier_Stoeks_3D(u, v, w, p, t, x, y, z, Rey):
-    Total = tf.contact([u, v, w, p], 1)
+    Total = torch.cat([u, v, w, p], 1)
     Total_t = forward_gradients(Total, t)
     Total_x = forward_gradients(Total, x)
     Total_y = forward_gradients(Total, y)
@@ -82,7 +85,7 @@ def Navier_Stoeks_3D(u, v, w, p, t, x, y, z, Rey):
 
 
 def Gradient_Velocity_NS_3D(u, v, w, x, y, z):
-    Total = tf.concat([u, v, w], 1)
+    Total = torch.cat([u, v, w], 1)
     Total_x = forward_gradients(Total, x)
     Total_y = forward_gradients(Total, y)
     Total_z = forward_gradients(Total, z)
@@ -100,7 +103,7 @@ def Gradient_Velocity_NS_3D(u, v, w, x, y, z):
     return [u_x, u_y, u_z, v_x, v_y, v_z, w_x, w_y, w_z]
 
 
-class Cnn_net(object):
+class Pinn_net(object):
     def __init__(self, *inputs, layers):
         self.layers = layers
         self.num_layers = len(self.layers)
@@ -126,7 +129,7 @@ class Cnn_net(object):
             self.alpha.append(tf.Variable(a, dtype=tf.float32, trainable=True))
 
     def __call__(self, *inputs):
-        Differ = (tf.contact(inputs, 1) - self.X_mean) / self.X_std
+        Differ = (torch.cat(inputs, 1) - self.X_mean) / self.X_std
         for L in range(0, self.num_layers - 1):
             w = self.weights[L]
             b = self.biases[L]
