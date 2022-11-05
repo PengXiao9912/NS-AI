@@ -3,6 +3,10 @@ import torch
 from torch.utils.data import DataLoader
 
 
+################################################################
+# load data and data set up
+###############################################################
+
 class GetLoader(torch.utils.data.Dataset):
     def __init__(self, data_root, data_label):
         self.data = data_root

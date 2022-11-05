@@ -133,14 +133,6 @@ if __name__ == "__main__":
     model = MODELS.build(cfg.model)
     print(model)
 
-################################################################
-    # load data and data normalization
-###############################################################
-
-
-
-
-    # batch_size = 1000
     # learning_rate = 0.001
     # epoch = 50
     # data = scipy.io.loadmat('../Data/DirectSailingMovement2D.mat')
