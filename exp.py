@@ -35,14 +35,16 @@ class PinnNet(nn.Module):
             self.alpha.append(torch.tensor(a, dtype=torch.float32, requires_grad=True))
 
     def forward(self, *inputs):
-        differ = (torch.cat(inputs, dim=1) - self.X_mean) / self.X_std
+        differ = torch.cat(inputs, dim=1)
+        differ = torch.tensor((differ - self.X_mean) / self.X_std)
         for layer in range(0, self.num_layers):  # TODO original (self.num_layers - 1)
             w = self.weights[layer]
             b = self.biases[layer]
             a = self.alpha[layer]
             W = w / torch.norm(w, dim=0, keepdim=True)
-            differ = differ @ W  # or torch.matmul
-            differ = a * differ + b
+            differ = torch.matmul(differ, W)
+            differ = a * differ
+            differ = differ + b
             if layer < self.num_layers - 2:
                 differ = differ * torch.sigmoid(differ)
 
@@ -51,8 +53,12 @@ class PinnNet(nn.Module):
 
 
 if __name__ == '__main__':
-    layers = [4] + 10 * [5 * 50] + [5]
-    x = [torch.rand(3, 5)] * 4
-    net = PinnNet(*x, layers=layers)
-    x = net(*x)
-    print(x)
+    layers = [5] + 10 * [5 * 4] + [5]
+    m = layers[1]
+    x = torch.rand(1, 5)
+    y = torch.rand(1, 5)
+    z = torch.rand(1, 5)
+    v = torch.rand(1, 5)
+    net = PinnNet(x, y, z, v, layers=layers)
+    k = net(x, y, z, v)
+    print(k)
