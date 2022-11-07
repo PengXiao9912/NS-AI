@@ -2,33 +2,37 @@ import pandas as pd
 import torch
 from torch.utils.data import DataLoader, Dataset
 import os
-import time
+import csv
 
 
 ################################################################
 # Build Data from CSV of StarCCM+
 ###############################################################
 
-# 读取csv数据第2-4列
-def readwrite(inputfile, output_file):
-    data = pd.read_csv(inputfile, sep=',', header=None)
-    data.to_csv(output_file, sep=',', columns=[1, 2, 3, ], header=None, index=False)
+def dataset_cut(path_in, path_out):
+    data_dir = os.listdir(path_in)
+    for i in data_dir:
+        location_in = os.path.abspath(path_in)
+        in_fo = os.path.join(location_in, i)
+        print(in_fo, "Begin to cut Data")
+        df = pd.DataFrame(pd.read_csv(in_fo, index_col=0, usecols=[0, 1, 2, 3]))
+        location_out = os.path.abspath(path_out)
+        out_fo = os.path.join(location_out, i)
+        df.to_csv(out_fo, encoding='utf-8')
+        print(in_fo, "Complete cut Data")
 
 
-# 计时函数
-def getRunTimes(fun, input_file, output_file):
-    begin_time = int(round(time.time() * 1000))
-    fun(input_file, output_file)
-    end_time = int(round(time.time() * 1000))
-    print('Data processing completed')
-    print("Data processing total time：", (end_time - begin_time), "ms")
-
-
-# 调用
-input_file = "E:/in.csv"
-output_file = "E:/out.csv"
-readwrite(input_file, output_file)
-getRunTimes(readwrite, input_file, output_file)  # 使用dataframe读写数据
+def label_data(path_in, path_out):
+    data_dir = os.listdir(path_in)
+    for i in data_dir:
+        location_in = os.path.abspath(path_in)
+        in_fo = os.path.join(location_in, i)
+        print(in_fo, "Begin to select label")
+        df = pd.DataFrame(pd.read_csv(in_fo, index_col=0, usecols=[0, 1, 2, 3], nrows=1))
+        location_out = os.path.abspath(path_out)
+        out_fo = os.path.join(location_out, i)
+        df.to_csv(out_fo, encoding='utf-8')
+        print(in_fo, "Complete select label")
 
 
 ################################################################
@@ -78,6 +82,14 @@ class VelocityDataSet(Dataset):
         label = torch.tensor(label.values)
 
         return data, label  # 返回数据和标签
+
+
+if __name__ == '__main__':
+    all_data_location = "E:/1"
+    new_data_location = "E:/1-data"
+    new_label_location = "E:/1-label"
+    dataset_cut(all_data_location, new_data_location)
+    label_data(all_data_location, new_label_location)
 
 # data_dir = r"E:/DatasetTry1/Data/"
 # label_dir = r"E:/DatasetTry1/label/"
